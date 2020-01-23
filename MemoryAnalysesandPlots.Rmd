@@ -1,0 +1,270 @@
+---
+title: "CFC Plots"
+author: "AC + NSH"
+date: "December 4th, 2018"
+#output: html_document
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+#change to cache = TRUE for files to write out
+knitr::opts_chunk$set(cache = FALSE)
+```
+
+```{r setDirs, echo = FALSE}
+#root <- rprojroot::find_rstudio_root_file()
+#dataDir <- file.path(root, 'Data')
+#setwd(dataDir)
+```
+
+``` {r loadPackages, echo = FALSE, message=FALSE, warning=FALSE}
+library(plyr)
+library(reshape2)
+library(ggplot2)
+library(Rmisc)
+library(lme4)
+library(lmerTest)
+library(data.table)
+library(tidyverse)
+```
+
+``` {r loadMemData, echo = FALSE, message=FALSE}
+setwd("/Users/nataliesaragosaharris/Desktop/CFC_Box/Data/Memory")
+DatawDemog = read.csv("MemoryData.csv")
+DatawDemog$DelayCondition = as.factor(DatawDemog$DelayCondition)
+shortdata = read.csv("Participant_IDs.csv")
+
+```
+
+```{r mergeData, echo = FALSE, message = FALSE, results="hide"}
+#merge demog data
+#DatawDemog <- merge(Data, Demog, by = "StudyID")
+#add agegroup variable
+DatawDemog$AgeGroup <- ifelse(DatawDemog$Age < 4,"3yo", ifelse(DatawDemog$Age >= 5, "5yo", "4yo"))
+DatawDemog$AgeGroup <- as.factor(DatawDemog$AgeGroup)
+#add variable to collapse incorrect1 & incorrect2.
+DatawDemog$AnswerTypecollapsed <- ifelse(DatawDemog$AnswerType == "correct","correct", ifelse(DatawDemog$AnswerType == "foil", "foil", "incorrect"))
+
+DatawDemog$DelayCondition = as.factor(DatawDemog$DelayCondition)
+
+# Create a column for each participant's overall accuracy based on their trial accuracy.
+OverallAccuracydf <- ddply(DatawDemog, "StudyID", summarize, OverallAccuracy = mean(TrialAccuracy , na.rm = TRUE))
+
+DatawDemog <- merge(DatawDemog, OverallAccuracydf, by = "StudyID", all.x = TRUE)
+shortdata <- merge(shortdata, OverallAccuracydf, by = "StudyID", all.x = TRUE)
+# Z score ages.
+meanAge = mean(shortdata$Age, na.rm = TRUE)
+sdAge = sd(shortdata$Age, na.rm = TRUE)
+shortdata$AgeZ <- (shortdata$Age - meanAge)/sdAge
+DatawDemog$AgeZ <- (DatawDemog$Age- meanAge)/sdAge
+
+#Using first value for each one since it's long form and they are the same values eight times.
+temp <- DatawDemog  %>% group_by(StudyID) %>% summarize(AgeGroup = first(AgeGroup))
+shortdata <- merge(shortdata, temp, by = "StudyID", all.x = TRUE)
+shortdata$AgeGroup <- as.factor(shortdata$AgeGroup)
+shortdata$DelayCondition <- as.factor(shortdata$DelayCondition)
+shortdata$StorybookVersion <- as.factor(shortdata$StorybookVersion)
+
+#get counts by answer type and save as new dataframe.
+trialtype <- as.data.frame.matrix(table(DatawDemog$StudyID,DatawDemog$AnswerTypecollapsed))
+#make StudyID the first column.
+setDT(trialtype, keep.rownames = TRUE)[]
+colnames(trialtype)[1]<-"StudyID"
+trialtypewdemog <-  trialtype
+trialtypewdemog <- merge(trialtype, DatawDemog, by = "StudyID")
+#add agegroup var back in
+#trialtypewdemog$AgeGroup <- ifelse(trialtypewdemog$Age < 4,"3yo", ifelse(trialtypewdemog$Age >= 5, "5yo", "4yo"))
+```
+
+```{r meltData, echo=FALSE, message = FALSE}
+#melt by answer type
+trialtypewdemog.long = melt(trialtypewdemog,
+                         id.vars=c("StudyID","AgeGroup","DelayCondition"),
+                         measure.vars= c("correct", "foil", "incorrect"),
+                         variable.name= "AnswerType")
+names(trialtypewdemog.long)[names(trialtypewdemog.long)=="value"] <- "count"
+
+#make count proportion of total trials (8)
+trialtypewdemog.long$Proportion <- trialtypewdemog.long$count/8
+```
+
+
+``` {r summaryStats, echo = FALSE, message=FALSE}
+Accuracy = summarySE(DatawDemog, measurevar= "TrialAccuracy", groupvars = c("AgeGroup", "DelayCondition"))
+AccuracybyParticipant = summarySE(DatawDemog, measurevar = "TrialAccuracy",groupvars = c("StudyID", "AgeGroup", "DelayCondition"))
+AccuracybyAnswerType = summarySE(trialtypewdemog.long, measurevar= "Proportion", groupvars = c("AnswerType","AgeGroup", "DelayCondition"))
+RT = summarySE(DatawDemog, measurevar= "ReactionTime", groupvars = c("AgeGroup", "DelayCondition"))
+RTbyParticipant = summarySE(DatawDemog, measurevar = "ReactionTime",groupvars = c("StudyID", "AgeGroup", "DelayCondition"))
+
+Accuracy$AgeGroup <- as.factor(Accuracy$AgeGroup)
+participants <- length(shortdata$StudyID)
+
+```
+
+Total participants:
+`r toString(participants)`
+
+## Memory Accuracy By Age Group and Delay Condition
+
+```{r plotMemAcc, echo = FALSE}
+
+ggplot() +
+  geom_bar(data=Accuracy, aes(x=AgeGroup, y=TrialAccuracy, group = DelayCondition, fill = DelayCondition), stat = "identity", position = position_dodge(), width =0.7) +
+  geom_point(data = AccuracybyParticipant, aes(x=AgeGroup, y=TrialAccuracy, group = DelayCondition, colour=StudyID), alpha=0.4, size = 1.5, position = position_jitterdodge(jitter.width= 10, jitter.height=0.01,dodge.width=0.7)) +
+    geom_errorbar(data=Accuracy, aes(x=AgeGroup, group = DelayCondition, ymin=TrialAccuracy-se, ymax=TrialAccuracy+se),position = position_dodge(.7),width =.1)+
+  scale_color_discrete(guide ="none") +
+   scale_fill_manual(name = "Delay\nCondition", breaks = c("1","2","3"), labels = c("5 minutes", "24 hours", "one week"), values = c("#7BACAB", "gray40", "#BEB8EB")) +
+  xlab("Age Group") + #x axis label
+  ylab("Memory Accuracy") + #y axis label
+  scale_y_continuous(expand = c(0,0), limits = c(0,1.1)) +
+  theme(title= element_text(size=26, vjust=2, face="bold"), #use these settings for titles unless otherwise specified
+        axis.title.x= element_text(size=22, vjust=-0.5),
+        axis.title.y= element_text(size=22, vjust=1.5),
+        axis.text.x= element_text(size=18, colour="black", vjust=-0.5),
+        axis.text.y= element_text(size=18, colour="black"),
+        legend.title= element_text(size=18), #no legend, but just in case you need one
+        legend.text= element_text(size=18),
+        #legend.position="none",
+        strip.text = element_text(size=18, face="bold"), #text in strip headings
+        panel.grid.major = element_blank(), #take out grid marks
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black")) + #diff pre-set themes available, or create your own 
+  geom_hline(yintercept=0.25)
+
+
+print("Memory accuracy by Age Group and Delay Condition")
+shortdata$AgeGroup <- as.factor(shortdata$AgeGroup)
+model3 <- lm(OverallAccuracy ~ AgeGroup*DelayCondition, data=shortdata)
+anova(model3)
+```
+
+# Memory by Age
+
+```{r MemoryByAge, echo = FALSE, warning = FALSE}
+# Line plot with x axis as continuous age, y axis as accuracy, and three colored lines grouped by delay condition.
+
+ggplot(shortdata, aes(x=Age, y=OverallAccuracy, group = DelayCondition, fill = DelayCondition, color = DelayCondition)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = TRUE, fullrange = TRUE) +
+  theme(axis.text.x=element_text(color="black", size=10),
+        axis.text.y=element_text(color="black", size=10)) + #Make axis numbers bigger.
+labs(title = "Memory Accuracy by Continuous Age",  x = "Continuous Age", y = "Overall Memory Accuracy") +
+    geom_hline(yintercept=0.25) +
+  scale_color_manual(values = c("#7BACAB", "gray40", "slateblue1"), name = "Group", labels = c("5 minutes", "24 hours", "One week")) + 
+  scale_fill_manual(values = c("#7BACAB", "gray40", "slateblue1"), name = "Group")
+
+print("Memory Accuracy by Age and Delay Condition")
+model1 <- lm(OverallAccuracy ~ Age*DelayCondition, data=shortdata)
+anova(model1)
+
+```
+
+# Memory by Z Scored Age
+```{r MemoryByAgeZ, echo = FALSE, warning = FALSE}
+
+# Line plot with x axis as continuous age, y axis as accuracy, and three colored lines grouped by delay condition.
+
+ggplot(shortdata, aes(x=AgeZ, y=OverallAccuracy, group = DelayCondition, fill = DelayCondition, color = DelayCondition)) + 
+  geom_point() + 
+  xlim(-1.7,1.7)+
+  geom_smooth(method = "lm", se = TRUE, fullrange=TRUE) +
+  theme(axis.text.x=element_text(color="black", size=10),
+        axis.text.y=element_text(color="black", size=10),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) +
+labs(title = "Memory Accuracy by Z Scored Age",  x = "Z Scored Age", y = "Overall Memory Accuracy") +
+    geom_hline(yintercept=0.25) +
+  scale_color_manual(values = c("#7BACAB", "gray40", "#BEB8EB"), name = "Group", labels = c("5 minutes", "24 hours", "One week")) + 
+  scale_fill_manual(values = c("#7BACAB", "gray40", "#BEB8EB"), name = "Group")
+
+
+
+print("Memory accuracy by Age Z and Delay Condition")
+model2 <- lm(OverallAccuracy ~ AgeZ*DelayCondition, data=shortdata)
+anova(model2)
+```
+
+## RT by Age Group
+
+```{r plotRT, echo = FALSE}
+ggplot() +
+  geom_bar(data=RT, aes(x=AgeGroup, y=ReactionTime, group = DelayCondition, fill = DelayCondition), stat = "identity", position = position_dodge(), width =0.7) +
+  geom_point(data = RTbyParticipant, aes(x=AgeGroup, y=ReactionTime, group = DelayCondition, colour=StudyID), alpha=0.4, size = 3, position = position_jitterdodge(jitter.width= 1,dodge.width=.6)) +
+    geom_errorbar(data=RT, aes(x=AgeGroup, group = DelayCondition, ymin=ReactionTime-se, ymax=ReactionTime+se),position = position_dodge(.7),width =.1)+
+  scale_color_discrete(guide ="none") +
+  scale_fill_manual(name = "Delay\nCondition",  breaks = c("1","2","3"), labels = c("5 minutes", "24 hours", "one week"), values = c("#7BACAB", "gray40", "slateblue1")) +
+  #scale_x_discrete(breaks= c("CSPlusPr","CSMinusPr"),
+  #                 labels= c("CS+","CS-")) +#rename x-axis scale
+  #scale_fill_manual(name = "Age Group", breaks = c("Adult","Teen"), values = c("grey45","grey")) +
+  xlab("Age Group") + #x axis label
+  ylab("Reaction Time") + #y axis label
+  scale_y_continuous(expand = c(0,0)) +
+  theme(title= element_text(size=26, vjust=2, face="bold"), #use these settings for titles unless otherwise specified
+        axis.title.x= element_text(size=22, vjust=-0.5),
+        axis.title.y= element_text(size=22, vjust=1.5),
+        axis.text.x= element_text(size=18, colour="black", vjust=-0.5),
+        axis.text.y= element_text(size=18, colour="black"),
+        legend.title= element_text(size=18), #no legend, but just in case you need one
+        legend.text= element_text(size=18),
+        #legend.position="none",
+        strip.text = element_text(size=18, face="bold"), #text in strip headings
+        panel.grid.major = element_blank(), #take out grid marks
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black")) #diff pre-set themes available, or create your own 
+```
+
+## Memory Accuracy by Answer Type
+
+```{r plotMemAnsType, echo = FALSE}
+labels <- c("1" = "5 minutes" , "2" = "24 hours", "3" = "one week")
+ggplot() +
+  geom_bar(data=AccuracybyAnswerType, aes(x=AgeGroup, y=Proportion, group =AnswerType, fill = AnswerType), alpha=0.9,stat = "identity", position = position_dodge(), width =0.7) +
+  scale_color_discrete(guide ="none") +
+  scale_fill_manual(values = c("#C7CDFF", "#9D95CD", "#625D80")) +
+  geom_point(data = trialtypewdemog.long, aes(x=AgeGroup, y=Proportion, group=AnswerType, fill = AnswerType), colour="mediumpurple4", pch=21, alpha=0.7, size = 2, position = position_jitterdodge(jitter.width= 0.5, jitter.height=0.03,dodge.width=.7)) +
+    geom_errorbar(data=AccuracybyAnswerType, aes(x=AgeGroup, group = AnswerType, ymin=Proportion-se, ymax=Proportion+se),position = position_dodge(.7),width =.1)+
+ scale_color_manual(values = c("#C7CDFF", "#9D95CD", "#625D80")) +
+  xlab("Age Group") + #x axis label
+  ylab("Proportion of responses") + #y axis label
+  scale_y_continuous(expand = c(0,0), limits = c(0,1.1)) +
+  theme(title= element_text(size=26, vjust=2, face="bold"), #use these settings for titles unless otherwise specified
+        axis.title.x= element_text(size=22, vjust=-0.5),
+        axis.title.y= element_text(size=22, vjust=1.5),
+        axis.text.x= element_text(size=18, colour="black", vjust=-0.5),
+        axis.text.y= element_text(size=18, colour="black"),
+        legend.title= element_text(size=16), #no legend, but just in case you need one
+        legend.text= element_text(size=16),
+        #legend.position="none",
+        strip.text = element_text(size=18, face="bold"), #text in strip headings
+        panel.grid.major = element_blank(), #take out grid marks
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black")) +
+  geom_hline(mapping=NULL, yintercept=c(0,0.25,0.5,0.75),colour='grey80') +
+facet_wrap(~ DelayCondition, labeller=labeller(DelayCondition = labels))
+```
+
+<!-- ## Frequency of answer choices -->
+
+<!-- ```{r plotHist, echo=FALSE} -->
+<!-- ggplot(data = DatawDemog, aes(x=Answer)) + -->
+<!--   geom_bar() + -->
+<!--   xlab("Place Chosen") + #x axis label -->
+<!--   theme(title= element_text(size=26, vjust=2, face="bold"), #use these settings for titles unless otherwise specified -->
+<!--         axis.title.x= element_text(size=22, vjust=-0.5), -->
+<!--         axis.title.y= element_text(size=22, vjust=1.5), -->
+<!--         axis.text.x= element_text(size=16, colour="black",vjust=0.6, angle=90), -->
+<!--         axis.text.y= element_text(size=18, colour="black"), -->
+<!--         legend.title= element_text(size=16), #no legend, but just in case you need one -->
+<!--         legend.text= element_text(size=16), -->
+<!--         #legend.position="none", -->
+<!--         strip.text = element_text(size=18, face="bold"), #text in strip headings -->
+<!--         panel.grid.major = element_blank(), #take out grid marks -->
+<!--         panel.grid.minor = element_blank(), -->
+<!--         panel.background = element_blank(),  -->
+<!--         axis.line = element_line(colour = "black")) + -->
+<!--   facet_wrap( ~ AnswerTypecollapsed, ncol=2) -->
+<!-- ``` -->
+
