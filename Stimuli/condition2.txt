@@ -1,0 +1,1 @@
+bear_library	bear	librarysheep_bedroom	sheep	bedroom	dog_car	dog	car	lion_street	lion	streetcat_mountain	cat	mountainmonkey_beach	monkey	beachcow_pool	cow	poolpig_playground	pig	playground

@@ -1,0 +1,1 @@
+panda_kitchen	panda	kitchenelephant_icerink	elephant	icerinkchicken_restaurant	chicken	restaurantcamel_toystore	camel	toystoreowl_desert	owl	desertturtle_igloo	turtle	igloozebra_jungle	zebra	jungledeer_cave	deer	cave

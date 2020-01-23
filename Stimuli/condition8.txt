@@ -1,0 +1,1 @@
+turtle_classroom	turtle	classroom		panda_hairsalon	panda	hairsalon		deer_arcade	deer	arcade		elephant_cafeteria	elephant	cafeteria		chicken_river	chicken	river		zebra_sandbox	zebra	sandbox		camel_volcano	camel	volcano		owl_bridge	owl	bridge		

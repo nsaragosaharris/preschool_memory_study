@@ -1,0 +1,1 @@
+bear_museum	bear	museumsheep_basketball	sheep	basketballdog_bowling	dog	bowlinglion_barn	lion	barncat_baseball	cat	baseballmonkey_bouncehouse	monkey	bouncehousecow_castle	cow	castlepig_tent	pig	tent
