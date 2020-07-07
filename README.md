@@ -17,7 +17,7 @@ In each storybook condition file (Stimuli/conditionX.txt), there are three colum
 
 In each memory assessment condition file (Stimuli/conditionX_memory.txt), there are five columns. The first column is the cue animal, the second column is the correct place, the third column is incorrect place 1 (old lure 1), the fourth column is incorrect place 2 (old lure 2), and the fifth column is the novel foil. The MATLAB scripts use these to find the correct images and audio files.
 
-The directory assumes that the Code, Stimuli, and TaskInstructions directories are all in the same outer directory. It assumes that you opened the code from the Code directory where the script is saved.
+The directory assumes that the Code, Stimuli, and TaskInstructions directories are all in the same outer directory. If you download "Task" and keep the organization the same, this directory structure should work. It assumes that you opened the code from the Code directory where the script is saved.
 
 Data.
 
