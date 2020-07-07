@@ -6,7 +6,7 @@ Citation for use of any code, data, or task: Saragosa-Harris, N.M.+, Cohen, A.O.
 (+) Natalie Saragosa-Harris and Alexandra Cohen are joint first authors on this paper.
 
 
-**Tasks.**
+**Task.**
 
 The storybook task and memory assessment used in the paper are provided here. The task was coded in MATLAB 2017a using Psychtoolbox-3 (Brainard, 1997; Pelli, 1997; Kleiner et al., 2007) and administered on a touch screen computer. It is compatible with a non touch screen computer, but if you are doing on a non touch screen you should remove the “HideCursor()” command so that you can see the position of the mouse.
 
@@ -25,6 +25,7 @@ The directory assumes that the Code, Stimuli, and TaskInstructions directories a
 The memory data for all participants included in the paper will be provided here upon publication.
 
 **Analysis.**
+
 The analysis script used for all results reported in the paper will be provided here upon publication.
 
 
