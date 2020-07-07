@@ -29,3 +29,4 @@ The memory data for all participants included in the paper will be provided here
 The analysis script used for all results reported in the paper will be provided here upon publication.
 
 
+If you have any questions about the task, email Natalie Saragosa-Harris at nsaragosaharris@ucla.edu.
