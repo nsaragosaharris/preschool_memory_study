@@ -5,7 +5,8 @@ Citation for use of any code, data, or task: Saragosa-Harris, N.M.+, Cohen, A.O.
 
 (+) Natalie Saragosa-Harris and Alexandra Cohen are joint first authors on this paper.
 
-Tasks.
+
+**Tasks.
 
 The storybook task and memory assessment used in the paper are provided here. The task was coded in MATLAB 2017a using Psychtoolbox-3 (Brainard, 1997; Pelli, 1997; Kleiner et al., 2007) and administered on a touch screen computer. It is compatible with a non touch screen computer, but if you are doing on a non touch screen you should remove the “HideCursor()” command so that you can see the position of the mouse.
 
@@ -19,7 +20,7 @@ In each memory assessment condition file (Stimuli/conditionX_memory.txt), there 
 
 The directory assumes that the Code, Stimuli, and TaskInstructions directories are all in the same outer directory. If you download "Task" and keep the organization the same, this directory structure should work. It assumes that you opened the code from the Code directory where the script is saved.
 
-Data.
+**Data.
 
 The memory data for all participants included in the paper are provided here.
 
