@@ -22,30 +22,9 @@ The directory assumes that the Code, Stimuli, and TaskInstructions directories a
 
 **Data.**
 
-The memory data for all participants included in the paper are provided here (Data/MemoryData.csv). It is in long format. Each row is a trial.
+The memory data for all participants included in the paper will be provided here upon publication.
 
-StudyID: Unique participant ID number.
+**Analysis.**
+The analysis script used for all results reported in the paper will be provided here upon publication.
 
-Age: Age of participant in years.
 
-Gender: Parent-reported gender of participant.
-
-StorybookVersion: Which “condition” or version of the task (corresponds to condition text file in Stimuli directory). 
-
-DelayCondition: 1 = five minutes, 2 = 24 hours, 3 = one week.
-
-Trial: Trial number (order in which participant saw the trial).
-
-Animal: Cue animal presented on that trial.
-
-TrialAccuracy: 0 = incorrect, 1 = correct.
-
-Begin: Time at start of trial.
-
-End: Time at end of trial.
-
-ReactionTime: Reaction time in seconds.
-
-Answer: Participant’s answer (which image they chose).
-
-AnswerType: What type of answer the participant selected (correct, incorrect lure 1, incorrect lure 2, or novel foil). Note that there is no difference between incorrect lure 1 and incorrect lure 2 (both are old lures, or places that were previously shown but paired with a different animal; the 1 and 2 are randomly assigned).
