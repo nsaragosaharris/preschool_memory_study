@@ -22,7 +22,7 @@ The directory assumes that the Code, Stimuli, and TaskInstructions directories a
 
 **Data.**
 
-The memory data for all participants included in the paper are provided here.
+The memory data for all participants included in the paper are provided here (Data/MemoryData.csv). It is in long format. Each row is a trial.
 
 StudyID: Unique participant ID number.
 
