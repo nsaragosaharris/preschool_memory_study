@@ -3,7 +3,7 @@ Analysis and task code for Saragosa-Harris*, Cohen*, Shen, Sardar, Alberini, & H
 
 Citation for use of any code, data, or task: Saragosa-Harris, N.M.+, Cohen, A.O.+, Shen, X., Sardar, H., Alberini, C.M., & Hartley, C.A. (2020). Associative memory persistence and specificity in three- to five-year-olds.
 
-+ Natalie Saragosa-Harris and Alexandra Cohen are joint first authors on this paper.
+(+) Natalie Saragosa-Harris and Alexandra Cohen are joint first authors on this paper.
 
 Tasks.
 
@@ -24,15 +24,27 @@ Data.
 The memory data for all participants included in the paper are provided here.
 
 StudyID: Unique participant ID number.
+
 Age: Age of participant in years.
+
 Gender: Parent-reported gender of participant.
+
 StorybookVersion: Which “condition” or version of the task (corresponds to condition text file in Stimuli directory). 
+
 DelayCondition: 1 = five minutes, 2 = 24 hours, 3 = one week.
+
 Trial: Trial number (order in which participant saw the trial).
+
 Animal: Cue animal presented on that trial.
+
 TrialAccuracy: 0 = incorrect, 1 = correct.
+
 Begin: Time at start of trial.
+
 End: Time at end of trial.
+
 ReactionTime: Reaction time in seconds.
+
 Answer: Participant’s answer (which image they chose).
+
 AnswerType: What type of answer the participant selected (correct, incorrect lure 1, incorrect lure 2, or novel foil). Note that there is no difference between incorrect lure 1 and incorrect lure 2 (both are old lures, or places that were previously shown but paired with a different animal; the 1 and 2 are randomly assigned).
