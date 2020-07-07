@@ -1,0 +1,8 @@
+cat	library	candy	pool	bouncehouse
+cow	bedroom	grocery	library	castle
+monkey	candy	pool	beach	baseball
+sheep	car	library	grocery	subway
+lion	grocery	beach	candy	basketball
+pig	mountain	car	bedroom	museum
+dog	beach	mountain	car	movie
+bear	pool	bedroom	mountain	bowling
