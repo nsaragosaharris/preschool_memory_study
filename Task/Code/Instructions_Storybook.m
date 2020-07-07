@@ -1,6 +1,4 @@
-% Written by Natalie Saragosa-Harris.
-% January 2018.
-% Go to Instructions folder for all of the necessary images and audio files.
+%Go to Instructions folder for all of the necessary images and audio files.
 cd ../TaskInstructions/StorybookInstructions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Screen Information.
@@ -42,7 +40,7 @@ while (respToBeMade == true)
         imageTexture = Screen('MakeTexture', window, title_stimuli);
         % Draw the image to the screen; will draw the texture full size in the center of the screen.
         Screen('DrawTexture', window, imageTexture, [], [], 0);
-        HideCursor();
+        HideCursor(); % Uncomment this if not using a touch screen.
         % Flip to the screen. This command draws all previous commands onto the screen.
         Screen('Flip', window);
         [mouseX, mouseY, buttons] = GetMouse(window); %record the x and y position of the mouse.

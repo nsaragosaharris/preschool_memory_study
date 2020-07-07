@@ -1,6 +1,4 @@
-% Written by Natalie Saragosa-Harris.
-% January 2018.
-% Go to MemoryInstructions folder for all of the necessary images and audio files.
+%Go to MemoryInstructions folder for all of the necessary images and audio files.
 cd ../TaskInstructions/MemoryInstructions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Screen Information.
@@ -44,7 +42,7 @@ while (respToBeMade == true)
         % Draw the image to the screen; will draw the texture full size in the center of the screen.
         Screen('DrawTexture', window, imageTexture, [], [], 0);
         % Flip to the screen. This command draws all previous commands onto the screen.
-        HideCursor();
+        HideCursor();  % Uncomment this if not using a touch screen.
         Screen('Flip', window);
         [mouseX, mouseY, buttons] = GetMouse(window); %record the x and y position of the mouse.
    

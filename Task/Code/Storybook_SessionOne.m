@@ -37,6 +37,7 @@ A = textscan(fileID_1,formatSpec_1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Screen Information.
+% Uncomment this section if you are not calling the instructions first.
 
 % % Get the screen numbers.
 % Screen('Preference', 'SkipSyncTests', 1)
@@ -63,9 +64,9 @@ A = textscan(fileID_1,formatSpec_1);
 % % Get the center coordinate of the window.
 % [xCenter, yCenter] = RectCenter(windowRect);
 
-% Change directory to be in the folder that has all of the images and
+% Directory should be the folder that has all of the images and
 % audio files together.
-cd StorybookPictures/All_Pictures_And_Audio
+cd All_Pictures_And_Audio
 
 %% Create data file.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

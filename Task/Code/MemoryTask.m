@@ -22,7 +22,7 @@ Instructions_MemoryTask
 %% Read in file with condition details.
 % There are four different text files (one for each condition). Load the
 % one that corresponds to the condition typed.
-cd ../Stimuli/MemoryTask
+cd ../Stimuli
 
 condition_filename = ['condition',int2str(conditionNumber), '_memory.txt'];
 fileID_1 = fopen(condition_filename,'r');
@@ -64,9 +64,9 @@ A = textscan(fileID_1,formatSpec_1);
 % % Get the center coordinate of the window.
 % [xCenter, yCenter] = RectCenter(windowRect);
 % 
-% Change directory to be in the folder that has all of the images and
+% Directory should be the folder that has all of the images and
 % audio files together.
-cd ../StorybookPictures/All_Pictures_And_Audio
+cd All_Pictures_And_Audio
 
 %% Create data file.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
