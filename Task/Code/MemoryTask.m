@@ -109,14 +109,20 @@ shuffled_vector = shuffled_vector(randperm(length(shuffled_vector)));
 
 % Define animal coordinates here.
 animal_coordinates = [xCenter-150 yCenter-150 xCenter+150 yCenter+150];
-%Define all corner coordinates here.
+% Define all corner coordinates here.
+% Note: You will likely need to change this depending on the size of your screen! 
+% Try to keep the ratios the same as here but change it until it looks right on your screen.
 top_right_coordinates= [xCenter+175 yCenter-420 xCenter+625 yCenter-120];
 top_left_coordinates = [xCenter-625 yCenter-420 xCenter-175 yCenter-120];
 bottom_right_coordinates= [xCenter+175 yCenter+150 xCenter+625 yCenter+450];
 bottom_left_coordinates = [xCenter-625 yCenter+150 xCenter-175 yCenter+450];
 
-%Define coordinates of the rectangles to draw around the picture that the
-%participant clicks on.
+% Define coordinates of the rectangles to draw around the picture that the
+% participant clicks on.
+% Note: You will likely need to change this depending on the size of your screen! 
+% Try to keep the ratios the same as here but change it until it looks right on your screen.
+% Make sure that the values are bigger by 10 (pay attention to positive and negative; in all cases should be adding 10!) in comparison to the image coordinates previously defined.
+% This will create an outline right around the images.
 top_right_rectangle_coordinates = [xCenter+165 yCenter-430 xCenter+635 yCenter-110];
 top_left_rectangle_coordinates = [xCenter-635 yCenter-430 xCenter-165 yCenter-110];
 bottom_right_rectangle_coordinates = [xCenter+165 yCenter+140 xCenter+635 yCenter+460];
