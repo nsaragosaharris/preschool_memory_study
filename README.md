@@ -21,7 +21,7 @@ The directory assumes that the Code, Stimuli, and TaskInstructions directories a
 
 **Data.**
 
-All data required to reproduce the reported results are included in the 'Data' folder. See 'VariableDefinitions.txt' for information about the variables.
+All data required to reproduce the reported results are included in the 'Data' folder. See 'VariableDefinitions.rtf' for information about the variables.
 
 **Analysis.**
 
