@@ -3,6 +3,7 @@ Analysis and task code for Saragosa-Harris+, Cohen+, Shen, Sardar, Alberini, & H
 
 Citation for use of any code, data, or task: Saragosa-Harris, N.M.+, Cohen, A. O.+, Shen, X., Sardar, H., Alberini, C.M., & Hartley, C.A. (in press). Associative memory persistence in three- to five-year-olds. *Developmental Science*. psyarxiv.com/4syjm. (+) Equal author contribution.
 
+For questions about the task scripts, email nsaragosaharris@ucla.edu. For questions about the analysis script, email ali.cohen@nyu.edu.
 
 **Task.**
 
