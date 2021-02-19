@@ -19,10 +19,10 @@ In each memory assessment condition file (Stimuli/conditionX_memory.txt), there 
 
 The directory assumes that the Code, Stimuli, and TaskInstructions directories are all in the same outer directory. If you download "Task" and keep the organization the same, this directory structure should work. It assumes that you opened the code from the Code directory where the script is saved.
 
-**Analysis.**
-
-All analyses required to reproduce the reported results are in Analysis/MemoryAnalysis_Final.Rmd.
-
 **Data.**
 
 All data required to reproduce the reported results are included in the 'Data' folder. See 'VariableDefinitions.txt' for information about the variables.
+
+**Analysis.**
+
+All analyses required to reproduce the reported results are in Analysis/MemoryAnalysis_Final.Rmd.
