@@ -1,0 +1,235 @@
+---
+title: "CFC Analysis"
+author: "AOC + NSH"
+date: "December 2020"
+output:
+  html_document:
+    df_print: paged
+    theme: flatly
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+#change to cache = TRUE for files to write out
+knitr::opts_chunk$set(cache = FALSE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8)
+```
+
+```{r setDirs, echo = FALSE}
+root <- rprojroot::find_rstudio_root_file()
+dataDir <- file.path(root, 'Data')
+```
+
+``` {r loadPackages, echo = FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(car)
+library(sjPlot)
+```
+
+``` {r loadMemData, echo = FALSE, message=FALSE}
+setwd(dataDir)
+DatawDemog = read.csv("MemoryData_ToShare.csv")
+DatawDemog$DelayCondition = as.factor(DatawDemog$DelayCondition)
+Demog = read.csv("Participant_Conditions_ToShare.csv")
+Demog$DelayCondition = as.factor(Demog$DelayCondition)
+```
+
+```{r mergeData, echo = FALSE, message = FALSE, results="hide"}
+#add agegroup variable
+DatawDemog$AgeGroup <- ifelse(DatawDemog$Age < 4,"3yo", ifelse(DatawDemog$Age >= 5, "5yo", "4yo"))
+DatawDemog$AgeGroup <- as.factor(DatawDemog$AgeGroup)
+#add variable to collapse incorrect1 & incorrect2.
+DatawDemog$AnswerTypecollapsed <- ifelse(DatawDemog$AnswerType == "correct","correct", ifelse(DatawDemog$AnswerType == "foil", "foil", "incorrect"))
+# Z score ages.
+DatawDemog$AgeZ <- scale(DatawDemog$Age)
+```
+
+```{r meltData, echo=FALSE, message = FALSE, results = 'hide'}
+
+library(dplyr)
+Accuracy = DatawDemog %>%
+                 group_by(StudyID,Age,AgeGroup,DelayCondition) %>%
+                 summarise(meanaccuracy = mean(TrialAccuracy))
+Accuracy = as.data.frame(Accuracy)
+
+# get counts by answer type and save as new dataframe.
+trialtype <- as.data.frame.matrix(table(DatawDemog$StudyID,DatawDemog$AnswerTypecollapsed))
+# make StudyID the first column.
+library(data.table)
+setDT(trialtype, keep.rownames = TRUE)[]
+colnames(trialtype)[1]<-"StudyID"
+trialtype.long = melt(trialtype,
+                         id.vars=c("StudyID"),
+                         measure.vars= c("correct", "foil", "incorrect"),
+                         variable.name= "AnswerType")
+names(trialtype.long)[names(trialtype.long)=="value"] <- "count"
+
+trialtypewdemog <- merge(trialtype.long, Demog, by = "StudyID")
+trialtypewdemog$Proportion <- trialtypewdemog$count/8
+trialtypewdemog$AgeGroup <- ifelse(trialtypewdemog$Age < 4,"3yo", ifelse(trialtypewdemog$Age >= 5, "5yo", "4yo"))
+trialtypewdemog$AgeGroup <- as.factor(trialtypewdemog$AgeGroup)
+
+#get counts by answer type and save as new dataframe.
+trialtype_allans <- as.data.frame.matrix(table(DatawDemog$StudyID,DatawDemog$AnswerType))
+#make StudyID the first column
+setDT(trialtype_allans, keep.rownames = TRUE)[]
+colnames(trialtype_allans)[1]<-"StudyID"
+trialtype_allans.long = melt(trialtype_allans,
+                         id.vars=c("StudyID"),
+                         measure.vars= c("correct", "foil", "incorrect1", "incorrect2"),
+                         variable.name= "AnswerType")
+names(trialtype_allans.long)[names(trialtype_allans.long)=="value"] <- "count"
+
+trialtypewdemog_allans <- merge(trialtype_allans.long, Demog, by = "StudyID")
+trialtypewdemog_allans$Proportion <- trialtypewdemog_allans$count/8
+trialtypewdemog_allans$AgeGroup <- ifelse(trialtypewdemog_allans$Age < 4,"3yo", ifelse(trialtypewdemog_allans$Age >= 5, "5yo", "4yo"))
+trialtypewdemog_allans$AgeGroup <- as.factor(trialtypewdemog_allans$AgeGroup)
+```
+
+## Memory accuracy 
+```{r MemoryByAge, echo = FALSE, warning = FALSE}
+# plot
+ggplot(Accuracy, aes(x=Age, y=meanaccuracy, group = DelayCondition, color = DelayCondition)) +
+  geom_point(size =2) +
+  geom_smooth(method = "lm", aes(fill=DelayCondition), se = TRUE, fullrange = TRUE, size=2) +
+labs(title = "",  x = "Age in Years", y = "Proportion Memory Accuracy") +
+   scale_color_manual(name = "Delay\nCondition", breaks = c("1","2","3"), labels = c("5 minutes", "24 hours", "1 week"), values = c("#7BACAB", "gray40", "#BEB8EB")) +
+  scale_fill_manual(values = c("#7BACAB", "gray40", "#BEB8EB"), guide=FALSE) +
+  scale_y_continuous(limits = c(0,1.1), breaks=c(0,0.25,0.5,0.75,1)) +
+     theme(title= element_text(size=26, vjust=2, face="bold"), 
+        axis.title.x= element_text(size=26),
+        axis.title.y= element_text(size=26, vjust=1.5),
+        axis.text.x= element_text(size=24, colour="black", vjust=0.6),
+        axis.text.y= element_text(size=24, colour="black"),
+        legend.title= element_text(size=24), 
+        legend.text= element_text(size=24),
+        #legend.position="none",
+        strip.text = element_text(size=24, face="bold"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black")) +
+        geom_hline(yintercept=0.25)
+
+#stats
+print("Memory Accuracy by Age and Delay Condition")
+accmodel_glmer <- glmer(TrialAccuracy ~ AgeZ * DelayCondition + (1|StudyID), family=binomial, control = glmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e6)), data = DatawDemog)
+
+Anova(accmodel_glmer, type = "III")
+
+print("One Sample T Tests: One Week Delay Condition by Age Group")
+threeyearolds <- subset(Accuracy, AgeGroup == "3yo" & DelayCondition == "3")
+fouryearolds <- subset(Accuracy, AgeGroup == "4yo" & DelayCondition == "3")
+fiveyearolds <- subset(Accuracy, AgeGroup == "5yo" & DelayCondition == "3")
+t.test(threeyearolds$meanaccuracy, mu=0.25)
+t.test(fouryearolds$meanaccuracy, mu=0.25)
+t.test(fiveyearolds$meanaccuracy, mu=0.25)
+
+print("One Sample T Tests: 24 hr Delay Condition by Age Group")
+threeyearolds24hr <- subset(Accuracy, AgeGroup == "3yo" & DelayCondition == "2")
+fouryearolds24hr <- subset(Accuracy, AgeGroup == "4yo" & DelayCondition == "2")
+fiveyearolds24hr <- subset(Accuracy, AgeGroup == "5yo" & DelayCondition == "2")
+t.test(threeyearolds24hr$meanaccuracy, mu=0.25)
+t.test(fouryearolds24hr$meanaccuracy, mu=0.25)
+t.test(fiveyearolds24hr$meanaccuracy, mu=0.25)
+
+print("One Sample T Tests: 5 min Delay Condition by Age Group")
+threeyearolds5min <- subset(Accuracy, AgeGroup == "3yo" & DelayCondition == "1")
+fouryearolds5min <- subset(Accuracy, AgeGroup == "4yo" & DelayCondition == "1")
+fiveyearolds5min <- subset(Accuracy, AgeGroup == "5yo" & DelayCondition == "1")
+t.test(threeyearolds5min$meanaccuracy, mu=0.25)
+t.test(fouryearolds5min$meanaccuracy, mu=0.25)
+t.test(fiveyearolds5min$meanaccuracy, mu=0.25)
+
+```
+
+## Memory test choices
+```{r plotMemAnsTypeagecont, echo = FALSE}
+#plot
+labels <- c("1" = "5 minutes" , "2" = "24 hours", "3" = "1 week")
+
+ggplot(trialtypewdemog_allans, aes(x=Age, y=Proportion, group = AnswerType, color = AnswerType)) +
+  geom_point() +
+  geom_smooth(method = "lm", aes(fill=AnswerType), se = TRUE, fullrange = TRUE, size = 2) +
+  scale_fill_manual(values = c("#C7CDFF", "#9D95CD", "#625D80", "#330066"), guide=FALSE) +
+scale_color_manual(values = c("#C7CDFF", "#9D95CD", "#625D80", "#330066"), name="Choice", breaks=c("correct","foil","incorrect1","incorrect2"), labels=c("Target", "Novel foil", "Lure 1","Lure 2")) +
+  xlab("Age") + 
+  ylab("Proportion of responses") + 
+  scale_y_continuous(limits = c(-0.1,1.1), breaks=c(0,0.25,0.5,0.75,1)) +
+  theme(title= element_text(size=26, vjust=2, face="bold"), 
+        axis.title.x= element_text(size=26),
+        axis.title.y= element_text(size=26, vjust=1.5),
+        axis.text.x= element_text(size=23, colour="black", vjust=0.6),
+        axis.text.y= element_text(size=24, colour="black"),
+        legend.title= element_text(size=23), 
+        legend.text= element_text(size=23),
+        #legend.position="none",
+        strip.text = element_text(size=24, face="bold"), 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        panel.spacing = unit(1, "lines"),
+        axis.line = element_line(colour = "black")) +
+facet_wrap(~ DelayCondition, labeller=labeller(DelayCondition = labels))
+
+#make new variables to analyze foil choice and incorrect choice separately
+DatawDemog$AnswerTypecollapsed <- as.factor(DatawDemog$AnswerTypecollapsed)
+DatawDemog$FoilChoice <- ifelse(DatawDemog$AnswerTypecollapsed == "foil", 1 , 0)
+DatawDemog$IncorrectChoice <- ifelse(DatawDemog$AnswerTypecollapsed == "incorrect", 1 , 0)
+
+#stats
+print("Foil Choices by Age Group and Delay Condition")
+foilmodelagecont_glmer <- glmer(FoilChoice ~ AgeZ * DelayCondition + (1|StudyID), family=binomial, control = glmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e6)), data = DatawDemog) 
+
+Anova(foilmodelagecont_glmer, type = "III")
+
+
+print("Incorrect Choices by Age Group and Delay Condition")
+incorrectmodelagecont_glmer <- glmer(IncorrectChoice ~ AgeZ * DelayCondition + (1|StudyID), family=binomial, control = glmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e6)), data = DatawDemog) 
+
+Anova(incorrectmodelagecont_glmer, type = "III")
+
+```
+
+## Memory test choices after one week
+```{r plotMemAnsTypeallansagecont, echo = FALSE}
+
+#subset data
+oneweek_allans <- subset(trialtypewdemog_allans, DelayCondition == "3")
+oneweek_allans <- droplevels(oneweek_allans)
+
+oneweek_allans$AgeZ <- scale(oneweek_allans$Age)
+
+#stats
+print("One week data by Age Group and Answer Type")
+oneweekmodelagecont_allans <- lmer(Proportion ~ AgeZ * AnswerType + (1|StudyID), control = lmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e6)), contrasts = list(AnswerType = "contr.sum"), data = oneweek_allans) 
+
+Anova(oneweekmodelagecont_allans, type = "III")
+
+oneweekmodelagecont_allans_plotting <- lmer(Proportion ~ Age * AnswerType + (1|StudyID), control = lmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e6)), contrasts = list(AnswerType = "contr.sum"), data = oneweek_allans) 
+
+#plot predicted probabilities from the model
+plot_model(oneweekmodelagecont_allans_plotting, type="pred", terms=c("Age [3,4,5,6]","AnswerType"), title = "Predicted Probabilities", colors=c("#C7CDFF", "#9D95CD", "#625D80", "#330066"), line.size=2) +
+  scale_color_manual(values = c("#C7CDFF", "#9D95CD", "#625D80", "#330066"), name="Choice Option", breaks=c("correct","foil","incorrect1","incorrect2"), labels=c("Target", "Novel foil", "Lure 1","Lure 2")) +
+  xlab("Age") + 
+  ylab("Proportion of responses") + 
+  theme(title= element_text(size=26, vjust=2, face="bold"), 
+        axis.title.x= element_text(size=26),
+        axis.title.y= element_text(size=26, vjust=1.5),
+        axis.text.x= element_text(size=24, colour="black", vjust=0.6),
+        axis.text.y= element_text(size=24, colour="black"),
+        legend.title= element_text(size=24), 
+        legend.text= element_text(size=24),
+        #legend.position="none",
+        strip.text = element_text(size=24, face="bold"), 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black")) 
+
+```
