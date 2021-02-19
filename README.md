@@ -1,9 +1,7 @@
 # Preschool_Memory_Study
-Analysis and task code for Saragosa-Harris+, Cohen+, Shen, Sardar, Alberini, & Hartley (2020). 
+Analysis and task code for Saragosa-Harris+, Cohen+, Shen, Sardar, Alberini, & Hartley (in press). 
 
-Citation for use of any code, data, or task: Saragosa-Harris, N.M.+, Cohen, A.O.+, Shen, X., Sardar, H., Alberini, C.M., & Hartley, C.A. (2020). Associative memory persistence and specificity in three- to five-year-olds.
-
-(+) Natalie Saragosa-Harris and Alexandra Cohen are joint first authors on this paper.
+Citation for use of any code, data, or task: Saragosa-Harris, N.M.+, Cohen, A. O.+, Shen, X., Sardar, H., Alberini, C.M., & Hartley, C.A. (in press). Associative memory persistence in three- to five-year-olds. *Developmental Science*. psyarxiv.com/4syjm. (+) Equal author contribution.
 
 
 **Task.**
